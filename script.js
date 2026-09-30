@@ -43,8 +43,7 @@ form.addEventListener("submit", async (event) => {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
     const blob = await upload(`html/${Date.now()}-${safeName}`, file, {
       access: "public",
-      handleUploadUrl: "/api/upload",
-      contentType: "text/html; charset=utf-8"
+      handleUploadUrl: "/api/upload"
     });
 
     resultUrl.value = blob.url;
