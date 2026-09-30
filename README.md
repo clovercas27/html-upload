@@ -4,6 +4,8 @@ A very small Vercel app that uploads `.html` or `.htm` files to Vercel Blob and 
 
 Uploads use Vercel Blob client uploads, so files can be larger than the normal Vercel Function request limit. This version allows files up to 50 MB.
 
+Direct Vercel Blob URLs download HTML files for security. The app returns a `/api/view` link that renders the uploaded HTML in the browser with a sandboxed content security policy.
+
 ## Deploy
 
 1. Push this folder to GitHub.

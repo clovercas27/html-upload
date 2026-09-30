@@ -46,8 +46,10 @@ form.addEventListener("submit", async (event) => {
       handleUploadUrl: "/api/upload"
     });
 
-    resultUrl.value = blob.url;
-    openLink.href = blob.url;
+    const viewUrl = `${window.location.origin}/api/view?url=${encodeURIComponent(blob.url)}`;
+
+    resultUrl.value = viewUrl;
+    openLink.href = viewUrl;
     openLink.textContent = "Open uploaded HTML";
     result.hidden = false;
     showMessage("Uploaded successfully.", "success");
