@@ -2,6 +2,12 @@ import { handleUpload } from "@vercel/blob/client";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
+export const config = {
+  api: {
+    bodyParser: true
+  }
+};
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -9,12 +15,7 @@ export default async function handler(request, response) {
   }
 
   try {
-    const chunks = [];
-    for await (const chunk of request) {
-      chunks.push(chunk);
-    }
-
-    const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    const body = await getRequestBody(request);
     const jsonResponse = await handleUpload({
       body,
       request,
@@ -27,7 +28,6 @@ export default async function handler(request, response) {
         }
 
         return {
-          allowedContentTypes: ["text/html"],
           maximumSizeInBytes: MAX_FILE_SIZE,
           addRandomSuffix: true,
           tokenPayload: JSON.stringify({})
@@ -46,4 +46,30 @@ export default async function handler(request, response) {
 
     return response.status(400).json({ error: error.message || "Upload failed. Please try again." });
   }
+}
+
+async function getRequestBody(request) {
+  if (request.body && typeof request.body === "object" && !Buffer.isBuffer(request.body)) {
+    return request.body;
+  }
+
+  if (typeof request.body === "string") {
+    return JSON.parse(request.body);
+  }
+
+  if (Buffer.isBuffer(request.body)) {
+    return JSON.parse(request.body.toString("utf8"));
+  }
+
+  const chunks = [];
+  for await (const chunk of request) {
+    chunks.push(chunk);
+  }
+
+  const rawBody = Buffer.concat(chunks).toString("utf8");
+  if (!rawBody) {
+    throw new Error("Upload token request body was empty.");
+  }
+
+  return JSON.parse(rawBody);
 }
