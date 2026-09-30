@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HTML Upload Portal</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Simple HTML host</p>
+          <h1 id="page-title">Upload an HTML file and get a link.</h1>
+        </div>
+
+        <form id="upload-form" class="uploader">
+          <label class="drop-zone" for="html-file">
+            <input id="html-file" name="file" type="file" accept=".html,.htm,text/html" required />
+            <span class="drop-title">Choose HTML file</span>
+            <span id="file-name" class="drop-subtitle">Only .html and .htm files are accepted.</span>
+          </label>
+
+          <button id="upload-button" type="submit">Upload</button>
+        </form>
+
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+
+        <section id="result" class="result" hidden>
+          <label for="result-url">Generated link</label>
+          <div class="result-row">
+            <input id="result-url" type="url" readonly />
+            <button id="copy-button" type="button">Copy</button>
+          </div>
+          <a id="open-link" target="_blank" rel="noopener noreferrer">Open file</a>
+        </section>
+      </section>
+    </main>
+
+    <script src="/script.js" type="module"></script>
+  </body>
+</html>
