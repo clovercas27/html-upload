@@ -1,5 +1,4 @@
-import { issueSignedToken } from "@vercel/blob";
-import { handleUploadPresigned } from "@vercel/blob/client";
+import { handleUpload } from "@vercel/blob/client";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
@@ -16,36 +15,22 @@ export default async function handler(request, response) {
     }
 
     const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-
-    const jsonResponse = await handleUploadPresigned({
+    const jsonResponse = await handleUpload({
       body,
       request,
-      getSignedToken: async (pathname) => {
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      onBeforeGenerateToken: async (pathname) => {
         const extension = pathname.split(".").pop().toLowerCase();
 
         if (!["html", "htm"].includes(extension)) {
           throw new Error("Only .html and .htm files are allowed.");
         }
 
-        const token = await issueSignedToken({
-          pathname,
-          operations: ["put"],
+        return {
           allowedContentTypes: ["text/html"],
           maximumSizeInBytes: MAX_FILE_SIZE,
-          validUntil: Date.now() + 60 * 60 * 1000,
-          token: blobToken
-        });
-
-        return {
-          token,
-          urlOptions: {
-            allowedContentTypes: ["text/html"],
-            maximumSizeInBytes: MAX_FILE_SIZE,
-            addRandomSuffix: true,
-            allowOverwrite: false,
-            validUntil: Date.now() + 10 * 60 * 1000
-          }
+          addRandomSuffix: true,
+          tokenPayload: JSON.stringify({})
         };
       },
       onUploadCompleted: async () => {}
