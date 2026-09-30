@@ -6,6 +6,8 @@ Uploads use Vercel Blob client uploads, so files can be larger than the normal V
 
 Direct Vercel Blob URLs download HTML files for security. The app returns a `/api/view` link that renders the uploaded HTML in the browser with a sandboxed content security policy.
 
+Open `/history.html` to view uploaded files and delete old ones from Blob storage.
+
 ## Deploy
 
 1. Push this folder to GitHub.

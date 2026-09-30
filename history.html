@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upload History</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel history-panel" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Upload history</h1>
+          <a class="history-link" href="/">Back to upload</a>
+        </div>
+
+        <div class="history-actions">
+          <p id="summary" class="message">Loading uploads...</p>
+          <button id="refresh-button" class="secondary-button" type="button">Refresh</button>
+        </div>
+
+        <div id="file-list" class="file-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="/history.js" type="module"></script>
+  </body>
+</html>

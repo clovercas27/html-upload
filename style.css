@@ -49,7 +49,19 @@ input {
 h1 {
   font-size: clamp(30px, 6vw, 48px);
   line-height: 1.05;
-  margin: 0 0 28px;
+  margin: 0 0 14px;
+}
+
+.history-link {
+  color: #2c6fbb;
+  display: inline-block;
+  font-weight: 700;
+  margin-bottom: 28px;
+  text-decoration: none;
+}
+
+.history-link:hover {
+  text-decoration: underline;
 }
 
 .uploader {
@@ -155,6 +167,63 @@ button:disabled {
   display: inline-block;
   font-weight: 700;
   margin-top: 16px;
+}
+
+.history-panel {
+  max-width: 880px;
+}
+
+.history-actions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.secondary-button {
+  background: #eef4fb;
+  color: #182033;
+}
+
+.file-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.file-card {
+  border: 1px solid #dde4f0;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.file-meta {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.file-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.file-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.file-row a {
+  color: #2c6fbb;
+  font-weight: 700;
+}
+
+.danger-button {
+  background: #b42318;
 }
 
 @media (max-width: 520px) {
