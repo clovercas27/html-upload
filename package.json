@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "vite",
+    "build": "vite build",
     "start": "vercel dev"
   },
   "dependencies": {
     "@vercel/blob": "latest"
   },
   "devDependencies": {
+    "vite": "latest",
     "vercel": "latest"
   }
 }

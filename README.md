@@ -2,6 +2,8 @@
 
 A very small Vercel app that uploads `.html` or `.htm` files to Vercel Blob and returns a public link.
 
+Uploads use Vercel Blob client uploads, so files can be larger than the normal Vercel Function request limit. This version allows files up to 50 MB.
+
 ## Deploy
 
 1. Push this folder to GitHub.
