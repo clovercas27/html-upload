@@ -1,12 +1,6 @@
-import { put } from "@vercel/blob";
+import { handleUpload } from "@vercel/blob/client";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -15,41 +9,34 @@ export default async function handler(request, response) {
   }
 
   try {
-    const contentLength = Number(request.headers["content-length"] || 0);
-    if (!contentLength) {
-      return response.status(400).json({ error: "No file was uploaded." });
-    }
-
-    if (contentLength > MAX_FILE_SIZE) {
-      return response.status(400).json({ error: "File is too large. Maximum size is 5 MB." });
-    }
-
-    const headerName = request.headers["x-file-name"];
-    const originalName = headerName ? decodeURIComponent(headerName) : "uploaded.html";
-    const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const extension = safeName.split(".").pop().toLowerCase();
-
-    if (!["html", "htm"].includes(extension)) {
-      return response.status(400).json({ error: "Only .html and .htm files are allowed." });
-    }
-
     const chunks = [];
     for await (const chunk of request) {
       chunks.push(chunk);
     }
 
-    const fileBuffer = Buffer.concat(chunks);
-    if (fileBuffer.length > MAX_FILE_SIZE) {
-      return response.status(400).json({ error: "File is too large. Maximum size is 5 MB." });
-    }
+    const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
 
-    const blob = await put(`html/${Date.now()}-${safeName}`, fileBuffer, {
-      access: "public",
-      addRandomSuffix: true,
-      contentType: "text/html; charset=utf-8"
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async (pathname) => {
+        const extension = pathname.split(".").pop().toLowerCase();
+
+        if (!["html", "htm"].includes(extension)) {
+          throw new Error("Only .html and .htm files are allowed.");
+        }
+
+        return {
+          allowedContentTypes: ["text/html"],
+          maximumSizeInBytes: MAX_FILE_SIZE,
+          addRandomSuffix: true,
+          tokenPayload: JSON.stringify({})
+        };
+      },
+      onUploadCompleted: async () => {}
     });
 
-    return response.status(200).json({ url: blob.url });
+    return response.status(200).json(jsonResponse);
   } catch (error) {
     if (error.message?.includes("BLOB_READ_WRITE_TOKEN")) {
       return response.status(500).json({
@@ -57,6 +44,6 @@ export default async function handler(request, response) {
       });
     }
 
-    return response.status(500).json({ error: "Upload failed. Please try again." });
+    return response.status(400).json({ error: error.message || "Upload failed. Please try again." });
   }
 }
