@@ -1,3 +1,5 @@
+import { upload } from "@vercel/blob/client";
+
 const form = document.querySelector("#upload-form");
 const fileInput = document.querySelector("#html-file");
 const fileName = document.querySelector("#file-name");
@@ -7,6 +9,7 @@ const result = document.querySelector("#result");
 const resultUrl = document.querySelector("#result-url");
 const openLink = document.querySelector("#open-link");
 const copyButton = document.querySelector("#copy-button");
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 fileInput.addEventListener("change", () => {
   fileName.textContent = fileInput.files[0]?.name || "Only .html and .htm files are accepted.";
@@ -27,27 +30,25 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+  if (file.size > MAX_FILE_SIZE) {
+    showMessage("File is too large. Maximum size is 50 MB.", "error");
+    return;
+  }
+
   uploadButton.disabled = true;
   result.hidden = true;
   showMessage("Uploading...");
 
   try {
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      headers: {
-        "content-type": file.type || "text/html",
-        "x-file-name": encodeURIComponent(file.name)
-      },
-      body: file
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const blob = await upload(`html/${Date.now()}-${safeName}`, file, {
+      access: "public",
+      handleUploadUrl: "/api/upload",
+      contentType: "text/html; charset=utf-8"
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Upload failed.");
-    }
-
-    resultUrl.value = data.url;
-    openLink.href = data.url;
+    resultUrl.value = blob.url;
+    openLink.href = blob.url;
     openLink.textContent = "Open uploaded HTML";
     result.hidden = false;
     showMessage("Uploaded successfully.", "success");
