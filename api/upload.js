@@ -1,4 +1,5 @@
-import { handleUpload } from "@vercel/blob/client";
+import { issueSignedToken } from "@vercel/blob";
+import { handleUploadPresigned } from "@vercel/blob/client";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
@@ -15,22 +16,36 @@ export default async function handler(request, response) {
     }
 
     const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
-    const jsonResponse = await handleUpload({
+    const jsonResponse = await handleUploadPresigned({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => {
+      getSignedToken: async (pathname) => {
         const extension = pathname.split(".").pop().toLowerCase();
 
         if (!["html", "htm"].includes(extension)) {
           throw new Error("Only .html and .htm files are allowed.");
         }
 
-        return {
+        const token = await issueSignedToken({
+          pathname,
+          operations: ["put"],
           allowedContentTypes: ["text/html"],
           maximumSizeInBytes: MAX_FILE_SIZE,
-          addRandomSuffix: true,
-          tokenPayload: JSON.stringify({})
+          validUntil: Date.now() + 60 * 60 * 1000,
+          token: blobToken
+        });
+
+        return {
+          token,
+          urlOptions: {
+            allowedContentTypes: ["text/html"],
+            maximumSizeInBytes: MAX_FILE_SIZE,
+            addRandomSuffix: true,
+            allowOverwrite: false,
+            validUntil: Date.now() + 10 * 60 * 1000
+          }
         };
       },
       onUploadCompleted: async () => {}
@@ -38,9 +53,9 @@ export default async function handler(request, response) {
 
     return response.status(200).json(jsonResponse);
   } catch (error) {
-    if (error.message?.includes("BLOB_READ_WRITE_TOKEN")) {
+    if (error.message?.includes("BLOB_READ_WRITE_TOKEN") || error.message?.includes("blob credentials")) {
       return response.status(500).json({
-        error: "Vercel Blob is not configured. Add BLOB_READ_WRITE_TOKEN in your Vercel project."
+        error: "Vercel Blob is not configured. Check that BLOB_READ_WRITE_TOKEN is connected to this project."
       });
     }
 
