@@ -1,4 +1,4 @@
-import { uploadPresigned } from "@vercel/blob/client";
+import { upload } from "@vercel/blob/client";
 
 const form = document.querySelector("#upload-form");
 const fileInput = document.querySelector("#html-file");
@@ -41,7 +41,7 @@ form.addEventListener("submit", async (event) => {
 
   try {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const blob = await uploadPresigned(`html/${Date.now()}-${safeName}`, file, {
+    const blob = await upload(`html/${Date.now()}-${safeName}`, file, {
       access: "public",
       handleUploadUrl: "/api/upload",
       contentType: "text/html; charset=utf-8"
