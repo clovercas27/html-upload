@@ -9,8 +9,18 @@ export const config = {
 };
 
 export default async function handler(request, response) {
+  if (request.method === "GET") {
+    return response.status(200).json({
+      ok: true,
+      hasBlobToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID),
+      hasWebhookKey: Boolean(process.env.BLOB_WEBHOOK_PUBLIC_KEY),
+      nodeEnv: process.env.NODE_ENV || null
+    });
+  }
+
   if (request.method !== "POST") {
-    response.setHeader("Allow", "POST");
+    response.setHeader("Allow", "GET, POST");
     return response.status(405).json({ error: "Method not allowed." });
   }
 
@@ -44,6 +54,7 @@ export default async function handler(request, response) {
       });
     }
 
+    console.error("Blob upload route failed:", error);
     return response.status(400).json({ error: error.message || "Upload failed. Please try again." });
   }
 }
